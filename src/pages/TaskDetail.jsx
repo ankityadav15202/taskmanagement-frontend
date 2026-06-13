@@ -67,7 +67,7 @@ const TaskDetail = () => {
         </div>
 
         {task.description && (
-          <p className="text-sm text-slate-600 dark:text-slate-300 mb-5 leading-relaxed">{task.description}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mb-5 leading-relaxed break-words whitespace-pre-wrap">{task.description}</p>
         )}
 
         <div className="flex flex-wrap gap-2 mb-5">

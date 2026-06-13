@@ -62,7 +62,7 @@ const CommentItem = ({ comment, taskId, currentUser }) => {
           </div>
         ) : (
           <div className="group flex items-start gap-2">
-            <p className="text-sm text-slate-600 flex-1">{comment.text}</p>
+            <p className="text-sm text-slate-600 flex-1 break-words whitespace-pre-wrap">{comment.text}</p>
             {isOwn && (
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 {comment.author._id === currentUser._id && (
