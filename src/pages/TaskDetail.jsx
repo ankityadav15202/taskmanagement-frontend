@@ -26,7 +26,12 @@ const TaskDetail = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data) => taskAPI.update(id, { ...data, dueDate: data.dueDate || undefined, assignee: data.assignee || undefined }),
+    mutationFn: (data) =>
+      taskAPI.update(id, {
+        ...data,
+        assignee: data.assignee !== undefined ? (data.assignee || null) : undefined,
+        dueDate: data.dueDate !== undefined ? (data.dueDate || null) : undefined,
+      }),
     onSuccess: () => { queryClient.invalidateQueries(['task', id]); queryClient.invalidateQueries(['tasks']); setShowEdit(false); toast.success('Task updated!'); },
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to update.'),
   });
@@ -113,7 +118,9 @@ const TaskDetail = () => {
       </div>
 
       <Modal isOpen={showEdit} onClose={() => setShowEdit(false)} title="Edit Task" size="lg">
-        <TaskForm key={task._id} defaultValues={editDefaults} onSubmit={updateMutation.mutate} isLoading={updateMutation.isPending} submitLabel="Save Changes" />
+        <TaskForm key={task._id} defaultValues={editDefaults} onSubmit={(data) => {
+          updateMutation.mutate(data);
+        }} isLoading={updateMutation.isPending} submitLabel="Save Changes" />
       </Modal>
 
       <ConfirmDialog

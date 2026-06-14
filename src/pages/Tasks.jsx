@@ -33,13 +33,18 @@ const Tasks = () => {
   });
 
   const createMutation = useMutation({
-    mutationFn: (formData) => taskAPI.create({ ...formData, dueDate: formData.dueDate || undefined, assignee: formData.assignee || undefined }),
+    mutationFn: (formData) => taskAPI.create({ ...formData, dueDate: formData.dueDate || null, assignee: formData.assignee || null }),
     onSuccess: () => { queryClient.invalidateQueries(['tasks']); queryClient.invalidateQueries(['dashboard']); setShowCreate(false); toast.success('Task created!'); },
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to create task.'),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, ...data }) => taskAPI.update(id, { ...data, dueDate: data.dueDate || undefined, assignee: data.assignee || undefined }),
+    mutationFn: ({ id, ...data }) =>
+      taskAPI.update(id, {
+        ...data,
+        assignee: data.assignee !== undefined ? (data.assignee || null) : undefined,
+        dueDate: data.dueDate !== undefined ? (data.dueDate || null) : undefined,
+      }),
     onSuccess: () => { queryClient.invalidateQueries(['tasks']); queryClient.invalidateQueries(['dashboard']); setEditTask(null); toast.success('Task updated!'); },
     onError: (err) => toast.error(err.response?.data?.message || 'Failed to update task.'),
   });
@@ -156,11 +161,15 @@ const Tasks = () => {
       )}
 
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Create Task" size="lg">
-        <TaskForm onSubmit={(data) => createMutation.mutate(data)} isLoading={createMutation.isPending} submitLabel="Create Task" />
+        <TaskForm onSubmit={(data) => {
+          createMutation.mutate(data);
+        }} isLoading={createMutation.isPending} submitLabel="Create Task" />
       </Modal>
 
       <Modal isOpen={!!editTask} onClose={() => setEditTask(null)} title="Edit Task" size="lg">
-        <TaskForm key={editTask?._id} defaultValues={editDefaults} onSubmit={(data) => updateMutation.mutate({ id: editTask._id, ...data })} isLoading={updateMutation.isPending} submitLabel="Save Changes" />
+        <TaskForm key={editTask?._id} defaultValues={editDefaults} onSubmit={(data) => {
+          updateMutation.mutate({ id: editTask._id, ...data });
+        }} isLoading={updateMutation.isPending} submitLabel="Save Changes" />
       </Modal>
 
       <ConfirmDialog
