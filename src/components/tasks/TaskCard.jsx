@@ -48,14 +48,16 @@ const TaskCard = ({ task, onEdit, onDelete }) => {
       </div>
 
       {task.labels?.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-3">
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {task.labels.slice(0, 3).map((label) => (
-            <span key={label} className="px-2 py-0.5 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 text-xs rounded-md font-medium">
+            <span key={label} className="chip">
               {label}
             </span>
           ))}
           {task.labels.length > 3 && (
-            <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-xs rounded-md">+{task.labels.length - 3}</span>
+            <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 text-xs rounded-full border border-slate-200 dark:border-slate-600/30 font-medium">
+              +{task.labels.length - 3}
+            </span>
           )}
         </div>
       )}

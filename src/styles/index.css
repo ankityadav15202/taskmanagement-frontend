@@ -52,6 +52,11 @@
   .badge {
     @apply inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium;
   }
+
+  /* Chip */
+  .chip {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-50 dark:bg-brand-700/20 text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-700/30 shadow-sm transition-all;
+  }
 }
 
 /* Scrollbar */

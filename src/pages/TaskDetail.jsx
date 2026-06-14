@@ -57,7 +57,7 @@ const TaskDetail = () => {
     ...task,
     assignee: task.assignee?._id || '',
     dueDate: task.dueDate ? format(new Date(task.dueDate), 'yyyy-MM-dd') : '',
-    labels: task.labels?.join(', ') || '',
+    labels: task.labels || [],
   };
 
   return (
@@ -86,7 +86,7 @@ const TaskDetail = () => {
           <StatusBadge status={task.status} />
           <PriorityBadge priority={task.priority} />
           {task.labels?.map((label) => (
-            <span key={label} className="badge bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400">{label}</span>
+            <span key={label} className="chip">{label}</span>
           ))}
         </div>
 

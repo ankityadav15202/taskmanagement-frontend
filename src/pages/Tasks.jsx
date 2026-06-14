@@ -82,7 +82,7 @@ const Tasks = () => {
     ...editTask,
     assignee: editTask.assignee?._id || '',
     dueDate: editTask.dueDate ? format(new Date(editTask.dueDate), 'yyyy-MM-dd') : '',
-    labels: editTask.labels?.join(', ') || '',
+    labels: editTask.labels || [],
   } : {};
 
   const tasksByStatus = {
