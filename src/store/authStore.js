@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { queryClient } from '../services/queryClient';
 
 const useAuthStore = create(
   persist(
@@ -10,7 +11,10 @@ const useAuthStore = create(
 
       setAuth: (user, token) => set({ user, token, isAuthenticated: true }),
       updateUser: (user) => set({ user }),
-      logout: () => set({ user: null, token: null, isAuthenticated: false }),
+      logout: () => {
+        queryClient.clear();
+        set({ user: null, token: null, isAuthenticated: false });
+      },
     }),
     {
       name: 'auth-storage',

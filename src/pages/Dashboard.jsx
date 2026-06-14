@@ -52,7 +52,12 @@ const Dashboard = () => {
             <BarChart data={statusChartData} barSize={36}>
               <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} allowDecimals={false} />
-              <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #334155', background: '#1e293b', color: '#f1f5f9' }} cursor={{ fill: 'rgba(99,102,241,0.05)' }} />
+              <Tooltip
+                contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #334155', background: '#1e293b' }}
+                itemStyle={{ color: '#f1f5f9' }}
+                labelStyle={{ color: '#f1f5f9' }}
+                cursor={{ fill: 'rgba(99,102,241,0.05)' }}
+              />
               <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                 {statusChartData.map((entry) => (
                   <Cell key={entry.name} fill={STATUS_COLORS[entry.name] || '#6366f1'} />
@@ -71,7 +76,11 @@ const Dashboard = () => {
                   <Cell key={entry.name} fill={PRIORITY_COLORS[entry.name] || '#6366f1'} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #334155', background: '#1e293b', color: '#f1f5f9' }} />
+              <Tooltip
+                contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #334155', background: '#1e293b' }}
+                itemStyle={{ color: '#f1f5f9' }}
+                labelStyle={{ color: '#f1f5f9' }}
+              />
             </PieChart>
           </ResponsiveContainer>
           <div className="flex flex-wrap gap-3 mt-2 justify-center">
