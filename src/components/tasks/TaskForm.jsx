@@ -1,15 +1,22 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
 import { userAPI } from '../../services/taskService';
 import Spinner from '../common/Spinner';
 
 const TaskForm = ({ onSubmit, defaultValues = {}, isLoading, submitLabel = 'Save Task' }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues });
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({ defaultValues });
 
   const { data: usersData } = useQuery({
     queryKey: ['users'],
     queryFn: () => userAPI.getAll().then((r) => r.data.data.users),
   });
+
+  useEffect(() => {
+    if (usersData) {
+      reset(defaultValues);
+    }
+  }, [usersData, reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
