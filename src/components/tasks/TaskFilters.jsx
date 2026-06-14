@@ -1,7 +1,34 @@
+import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { userAPI } from '../../services/taskService';
 
 const TaskFilters = ({ filters, onChange }) => {
+  const [searchTerm, setSearchTerm] = useState(filters.search || '');
+  const latestOnChange = useRef(onChange);
+  const latestFilters = useRef(filters);
+
+  // Sync ref values on every render
+  useEffect(() => {
+    latestOnChange.current = onChange;
+    latestFilters.current = filters;
+  }, [onChange, filters]);
+
+  // Sync local search term with parent prop (e.g. when filters are cleared)
+  useEffect(() => {
+    setSearchTerm(filters.search || '');
+  }, [filters.search]);
+
+  // Debounce effect using refs
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if ((latestFilters.current.search || '') !== searchTerm) {
+        latestOnChange.current({ ...latestFilters.current, search: searchTerm });
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
+
   const { data: usersData } = useQuery({
     queryKey: ['users'],
     queryFn: () => userAPI.getAll().then((r) => r.data.data.users),
@@ -19,8 +46,8 @@ const TaskFilters = ({ filters, onChange }) => {
         <input
           className="input pl-9"
           placeholder="Search tasks..."
-          value={filters.search || ''}
-          onChange={(e) => handleChange('search', e.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 

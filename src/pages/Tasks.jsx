@@ -28,6 +28,7 @@ const Tasks = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['tasks', filters],
     queryFn: () => taskAPI.getAll({ ...filters, limit: 150 }).then((r) => r.data.data),
+    staleTime: 0,
     keepPreviousData: true,
   });
 
