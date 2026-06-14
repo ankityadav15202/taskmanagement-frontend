@@ -75,17 +75,18 @@ Make sure the backend is running on port 5000 before starting the frontend.
 - Login / Register forms with validation
 - JWT stored in Zustand (persisted to localStorage)
 - Auto-redirect on 401 (token expired)
+- Complete global query cache invalidation on logout to secure user sessions
 
 ### Dashboard
 - Summary stat cards (total, completion %, in-progress, overdue)
 - Bar chart — tasks by status
-- Donut chart — tasks by priority
+- Donut chart — tasks by priority (styled with dynamic item/label text visibility to support dark-mode themes)
 - My assigned tasks list
 
 ### Tasks
 - Grid view with search, filter (status, priority, assignee), sort (due date, priority)
 - Pagination (12 per page)
-- Create / Edit tasks in modal
+- Create / Edit tasks in modal (supports setting and clearing assignee / due date values)
 - Soft delete with confirmation dialog
 - Overdue task highlighting
 
@@ -93,6 +94,7 @@ Make sure the backend is running on port 5000 before starting the frontend.
 - Full task view with all metadata
 - Edit + Delete directly from detail page
 - Comments: add, edit own, delete own (admins can delete any)
+- **Task History Audit Log:** Interactive tab displaying a chronological timeline of modifications made to the task (assignee changes, status updates, title, description, etc.).
 
 ### Users (Admin only)
 - Table view of all workspace members
@@ -107,6 +109,12 @@ All API data is managed by React Query — handles caching, background refetchin
 
 ### Zustand for client state
 Only auth state needs to be global and persisted across page refreshes. Zustand with the `persist` middleware handles this with minimal boilerplate.
+
+### Cache Clearing & Session Security
+To prevent potential data leaks when switching user sessions on the same browser client, Zustand's logout action actively triggers `queryClient.clear()` to purge all cached server state.
+
+### Async Form Default Values Sync
+Dynamic select dropdowns populated asynchronously are synchronized with react-hook-form defaults using a `useEffect` hook listening to data resolution. This avoids initial option mismatches and race conditions defaulting assignee values to "Unassigned".
 
 ### Lazy loading
 All pages are lazy-loaded with `React.lazy()` and wrapped in `<Suspense>` — reduces initial bundle size.
