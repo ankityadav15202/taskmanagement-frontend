@@ -24,14 +24,7 @@ const TaskFilters = ({ filters, onChange }) => {
         />
       </div>
 
-      {/* Status */}
-      <select className="input w-36" value={filters.status || ''} onChange={(e) => handleChange('status', e.target.value)}>
-        <option value="">All Status</option>
-        <option value="todo">To Do</option>
-        <option value="in-progress">In Progress</option>
-        <option value="review">Review</option>
-        <option value="done">Done</option>
-      </select>
+
 
       {/* Priority */}
       <select className="input w-36" value={filters.priority || ''} onChange={(e) => handleChange('priority', e.target.value)}>

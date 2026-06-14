@@ -11,17 +11,23 @@ import EmptyState from '../components/common/EmptyState';
 import { PageLoader } from '../components/common/Spinner';
 import { format } from 'date-fns';
 
+const COLUMNS = [
+  { id: 'todo', title: 'To Do', bg: 'bg-slate-100/70 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/60' },
+  { id: 'in-progress', title: 'In Progress', bg: 'bg-blue-50/40 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/30' },
+  { id: 'review', title: 'Review', bg: 'bg-purple-50/40 dark:bg-purple-950/10 border-purple-100 dark:border-purple-900/30' },
+  { id: 'done', title: 'Done', bg: 'bg-green-50/40 dark:bg-green-950/10 border-green-100 dark:border-green-900/30' },
+];
+
 const Tasks = () => {
   const [filters, setFilters] = useState({});
-  const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
   const [editTask, setEditTask] = useState(null);
   const [deleteTask, setDeleteTask] = useState(null);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['tasks', filters, page],
-    queryFn: () => taskAPI.getAll({ ...filters, page, limit: 12 }).then((r) => r.data.data),
+    queryKey: ['tasks', filters],
+    queryFn: () => taskAPI.getAll({ ...filters, limit: 150 }).then((r) => r.data.data),
     keepPreviousData: true,
   });
 
@@ -43,12 +49,44 @@ const Tasks = () => {
     onError: () => toast.error('Failed to delete task.'),
   });
 
+  const handleDragStart = (e, taskId) => {
+    e.dataTransfer.setData('text/plain', taskId);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e, targetStatus) => {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData('text/plain');
+    if (taskId) {
+      const task = data?.tasks?.find((t) => t._id === taskId);
+      if (task && task.status !== targetStatus) {
+        updateMutation.mutate({ id: taskId, status: targetStatus });
+      }
+    }
+  };
+
   const editDefaults = editTask ? {
     ...editTask,
     assignee: editTask.assignee?._id || '',
     dueDate: editTask.dueDate ? format(new Date(editTask.dueDate), 'yyyy-MM-dd') : '',
     labels: editTask.labels?.join(', ') || '',
   } : {};
+
+  const tasksByStatus = {
+    todo: [],
+    'in-progress': [],
+    review: [],
+    done: [],
+  };
+
+  data?.tasks?.forEach((task) => {
+    if (tasksByStatus[task.status]) {
+      tasksByStatus[task.status].push(task);
+    }
+  });
 
   return (
     <div className="space-y-6">
@@ -65,7 +103,7 @@ const Tasks = () => {
         </button>
       </div>
 
-      <TaskFilters filters={filters} onChange={(f) => { setFilters(f); setPage(1); }} />
+      <TaskFilters filters={filters} onChange={(f) => setFilters(f)} />
 
       {isLoading ? (
         <PageLoader />
@@ -77,21 +115,43 @@ const Tasks = () => {
           action={<button className="btn-primary" onClick={() => setShowCreate(true)}>Create task</button>}
         />
       ) : (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data?.tasks.map((task) => (
-              <TaskCard key={task._id} task={task} onEdit={setEditTask} onDelete={setDeleteTask} />
-            ))}
-          </div>
+        <div className="flex lg:grid lg:grid-cols-4 gap-4 overflow-x-auto pb-4 lg:overflow-x-visible items-start min-h-[600px]">
+          {COLUMNS.map((col) => (
+            <div
+              key={col.id}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, col.id)}
+              className={`w-[290px] sm:w-[320px] lg:w-full flex-shrink-0 flex flex-col rounded-xl p-4 min-h-[500px] border ${col.bg}`}
+            >
+              <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  {col.title}
+                </h3>
+                <span className="text-xs font-semibold px-2 py-0.5 bg-slate-200/80 dark:bg-slate-700 rounded-full text-slate-600 dark:text-slate-300">
+                  {tasksByStatus[col.id].length}
+                </span>
+              </div>
 
-          {data?.pagination?.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-3 pt-4">
-              <button className="btn-secondary" onClick={() => setPage((p) => p - 1)} disabled={page === 1}>← Prev</button>
-              <span className="text-sm text-slate-500 dark:text-slate-400">Page {page} of {data.pagination.totalPages}</span>
-              <button className="btn-secondary" onClick={() => setPage((p) => p + 1)} disabled={page === data.pagination.totalPages}>Next →</button>
+              <div className="flex-1 space-y-3 overflow-y-auto max-h-[70vh] pr-1">
+                {tasksByStatus[col.id].map((task) => (
+                  <div
+                    key={task._id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, task._id)}
+                    className="cursor-grab active:cursor-grabbing"
+                  >
+                    <TaskCard task={task} onEdit={setEditTask} onDelete={setDeleteTask} />
+                  </div>
+                ))}
+                {tasksByStatus[col.id].length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-slate-200 dark:border-slate-700/50 rounded-xl text-slate-400 text-xs">
+                    No tasks
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-        </>
+          ))}
+        </div>
       )}
 
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Create Task" size="lg">
