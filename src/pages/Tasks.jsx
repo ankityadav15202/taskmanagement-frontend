@@ -69,6 +69,10 @@ const Tasks = () => {
     if (taskId) {
       const task = data?.tasks?.find((t) => t._id === taskId);
       if (task && task.status !== targetStatus) {
+        if (!task.assignee) {
+          toast.error('Task must be assigned to someone before changing its status.');
+          return;
+        }
         updateMutation.mutate({ id: taskId, status: targetStatus });
       }
     }
@@ -162,12 +166,20 @@ const Tasks = () => {
 
       <Modal isOpen={showCreate} onClose={() => setShowCreate(false)} title="Create Task" size="lg">
         <TaskForm onSubmit={(data) => {
+          if (data.status !== 'todo' && !data.assignee) {
+            toast.error('Task must be assigned to someone before changing its status.');
+            return;
+          }
           createMutation.mutate(data);
         }} isLoading={createMutation.isPending} submitLabel="Create Task" />
       </Modal>
 
       <Modal isOpen={!!editTask} onClose={() => setEditTask(null)} title="Edit Task" size="lg">
         <TaskForm key={editTask?._id} defaultValues={editDefaults} onSubmit={(data) => {
+          if (editTask.status !== data.status && !data.assignee) {
+            toast.error('Task must be assigned to someone before changing its status.');
+            return;
+          }
           updateMutation.mutate({ id: editTask._id, ...data });
         }} isLoading={updateMutation.isPending} submitLabel="Save Changes" />
       </Modal>

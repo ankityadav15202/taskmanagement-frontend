@@ -119,6 +119,10 @@ const TaskDetail = () => {
 
       <Modal isOpen={showEdit} onClose={() => setShowEdit(false)} title="Edit Task" size="lg">
         <TaskForm key={task._id} defaultValues={editDefaults} onSubmit={(data) => {
+          if (task.status !== data.status && !data.assignee) {
+            toast.error('Task must be assigned to someone before changing its status.');
+            return;
+          }
           updateMutation.mutate(data);
         }} isLoading={updateMutation.isPending} submitLabel="Save Changes" />
       </Modal>
